@@ -1,20 +1,29 @@
 const axios = require('axios');
+const net = require('net');
 const { WebhookClient, EmbedBuilder } = require('discord.js');
 const fs = require('fs').promises;
 
 // Configuration
 const CONFIG = {
-    SERVER: {
-        IP: 'SERVER_IP',           // Replace with your server's IP address
-        PORT: SERVER_PORT,         // Replace with your server's port
-        NAME: 'SERVER_NAME'        // Replace with your server´s name
-    },
+    SERVERS: [
+        {
+            IP: 'SERVER_IP1',
+            PORT: SERVER_PORT1,
+            NAME: 'SERVER_NAME1',
+            STEAM_ADDRESS: 'SERVER_IP:SERVER_PORT1'
+        },
+        {
+            IP: 'SERVER_IP2',
+            PORT: SERVER_PORT2,
+            NAME: 'SERVER_NAME2',
+            STEAM_ADDRESS: 'SERVER_IP:SERVER_PORT2'
+        }
+    ],
     STEAM: {
-        API_KEY: 'STEAM_WEB_API_KEY',                // Replace with your steam web api key
-        SERVER_ADDRESS: 'SERVER_IP:SERVER_PORT'      // Replace with your server´s IP and port
+        API_KEY: 'STEAM_WEB_API_KEY',
     },
     DISCORD: {
-        WEBHOOK_URL: 'DISCORD_WEBHOOK',        // Replace with your discord webhook
+        WEBHOOK_URL: 'DISCORD_WEBHOOK',
         CHECK_INTERVAL: 60000
     },
     COLORS: {
@@ -49,17 +58,20 @@ const loadMessageId = async () => {
 };
 
 // Function to check server status using Steam Web API
-const checkServerStatus = async () => {
+const checkServerStatusSteam = async (serverAddress) => {
     try {
-        const response = await axios.get(`http://api.steampowered.com/IGameServersService/GetServerList/v1/`, {
+        const response = await axios.get(`https://api.steampowered.com/IGameServersService/GetServerList/v1/`, {
             params: {
                 key: CONFIG.STEAM.API_KEY,
-                filter: `addr\\${CONFIG.STEAM.SERVER_ADDRESS}`
+                filter: `addr\\${serverAddress}`,
+                limit: 1
             },
             timeout: 5000 // 5 seconds timeout
         });
         
-        if (response.data?.response?.servers?.[0]) {
+        console.log('Steam API response:', JSON.stringify(response.data, null, 2));  // Debug log
+        
+        if (response.data?.response?.servers?.length > 0) {
             const serverInfo = response.data.response.servers[0];
             return {
                 online: true,
@@ -69,35 +81,64 @@ const checkServerStatus = async () => {
                 name: serverInfo.name
             };
         } else {
-            return { online: false };
+            console.log(`No server info found for ${serverAddress} via Steam API`);
+            return null;
         }
     } catch (error) {
-        console.error('Steam Web API request failed:', error.message);
-        return { online: false };
+        console.error(`Steam Web API request failed for ${serverAddress}:`, error.message);
+        return null;
     }
 };
 
-// Create an embed message
-const createStatusEmbed = (status) => {
+// Function to check server status using direct TCP connection
+const checkServerStatusDirect = (ip, port) => {
+    return new Promise((resolve) => {
+        const socket = new net.Socket();
+        socket.setTimeout(5000);  // 5 seconds timeout
+
+        socket.connect(port, ip, () => {
+            socket.destroy();
+            resolve({ online: true });
+        });
+
+        socket.on('error', (error) => {
+            console.log(`Direct connection error for ${ip}:${port}:`, error.message);
+            resolve({ online: false });
+        });
+
+        socket.on('timeout', () => {
+            console.log(`Connection timeout for ${ip}:${port}`);
+            socket.destroy();
+            resolve({ online: false });
+        });
+    });
+};
+
+// Create an embed message for multiple servers
+const createStatusEmbed = (statuses) => {
     const embed = new EmbedBuilder()
-        .setColor(status.online ? CONFIG.COLORS.ONLINE : CONFIG.COLORS.OFFLINE)
-        .setTitle(`${CONFIG.SERVER.NAME} is ${status.online ? 'ONLINE! 🎮' : 'OFFLINE 🚫'}`)
-        .setDescription(status.online ? 'The server is currently available.' : 'The server is currently unavailable. Please try again later.')
-        .addFields(
-            { name: 'Server Address', value: `${CONFIG.SERVER.IP}:${CONFIG.SERVER.PORT}`, inline: true },
-            { name: 'Status', value: status.online ? '🟢 Online' : '🔴 Offline', inline: true },
-            { name: 'Last Updated', value: new Date().toLocaleString('en-US'), inline: true }
-        )
+        .setColor('#0099ff')
+        .setTitle('CS2 Servers Status')
+        .setDescription('Current status of all monitored servers')
         .setFooter({ text: 'CS2 Server Status Bot' })
         .setTimestamp();
 
-    if (status.online) {
-        embed.addFields(
-            { name: 'Players', value: `${status.players}/${status.maxPlayers}`, inline: true },
-            { name: 'Current Map', value: status.map, inline: true },
-            { name: 'Server Name', value: status.name || 'N/A', inline: true }
-        );
-    }
+    statuses.forEach(status => {
+        let fieldValue;
+        if (status.online) {
+            fieldValue = status.players !== undefined
+                ? `🟢 Online\nPlayers: ${status.players}/${status.maxPlayers}\nMap: ${status.map}\nName: ${status.name || 'N/A'}`
+                : `🟢 Online\n(Detailed info unavailable)`;
+        } else {
+            fieldValue = '🔴 Offline';
+        }
+
+        embed.addFields({
+            name: `${status.serverName} (${status.serverAddress})`,
+            value: fieldValue,
+            inline: false
+        });
+    });
 
     return embed;
 };
@@ -128,12 +169,24 @@ const sendOrUpdateStatusInDiscord = async (embed) => {
 // Main function
 const updateServerStatus = async () => {
     try {
-        console.log('Checking server status...');
-        const status = await checkServerStatus();
-        const currentEmbed = createStatusEmbed(status);
+        console.log('Checking server statuses...');
+        const statuses = await Promise.all(CONFIG.SERVERS.map(async server => {
+            let status = await checkServerStatusSteam(server.STEAM_ADDRESS);
+            if (!status) {
+                console.log(`Falling back to direct connection check for ${server.NAME}`);
+                status = await checkServerStatusDirect(server.IP, server.PORT);
+            }
+            console.log(`Status for ${server.NAME}:`, status);  // Debug log
+            return {
+                ...status,
+                serverName: server.NAME,
+                serverAddress: `${server.IP}:${server.PORT}`
+            };
+        }));
+        const currentEmbed = createStatusEmbed(statuses);
         await sendOrUpdateStatusInDiscord(currentEmbed);
     } catch (error) {
-        console.error('Error updating server status:', error.message);
+        console.error('Error updating server statuses:', error.message);
     }
 };
 
