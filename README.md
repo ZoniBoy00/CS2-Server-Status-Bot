@@ -26,14 +26,14 @@ First, clone the repository to your local machine:
 git clone https://github.com/ZoniBoy00/CS2-Server-Status-Bot.git
 cd CS2-Server-Status-Bot
 
-2. Install Dependencies
+### 2. Install Dependencies
 Install the required Node.js dependencies by running:
 
 ```bash```
 npm install
 This command installs all the necessary packages listed in the package.json file.
 
-3. Configure the Bot
+### 3. Configure the Bot
 Create a configuration file named config.js in the project root directory with the following content:
 
 ```javascript```
@@ -67,14 +67,14 @@ STEAM.SERVER_ADDRESS: The combined address of your server in IP:PORT format.
 DISCORD.WEBHOOK_URL: The URL of your Discord webhook where status updates will be sent.
 DISCORD.CHECK_INTERVAL: The interval (in milliseconds) at which the bot checks the server status (default is 60,000 ms or 1 minute).
 
-4. Run the Bot
+### 4. Run the Bot
 To start the bot, execute the following command in your terminal:
 
 ```bash```
 node index.js
 The bot will immediately perform a status check and then continue to check the server status at the interval specified in the configuration (CHECK_INTERVAL).
 
-How It Works
+### How It Works
 Status Check: The bot periodically checks the status of the Counter-Strike 2 server using the Steam Web API.
 Embed Message: An embed message is created to display the server status, including whether the server is online or offline, and additional details if online.
 Discord Webhook: The bot sends or updates the status message in the specified Discord channel using a webhook.
