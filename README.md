@@ -1,0 +1,1 @@
+# CS2-Server-Status-Bot
