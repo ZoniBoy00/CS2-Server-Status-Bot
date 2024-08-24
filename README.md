@@ -22,24 +22,19 @@ A simple bot to monitor and update the status of a Counter-Strike 2 server on Di
 
 First, clone the repository to your local machine:
 
-```bash```
-git clone https://github.com/ZoniBoy00/CS2-Server-Status-Bot.git
-
+```bash git clone https://github.com/ZoniBoy00/CS2-Server-Status-Bot.git```
 cd CS2-Server-Status-Bot
 
 ### 2. Install Dependencies
 Install the required Node.js dependencies by running:
 
-```bash```
-npm install
-
+```bash npm install```
 This command installs all the necessary packages listed in the package.json file.
 
 ### 3. Configure the Bot
 Create a configuration file named config.js in the project root directory with the following content:
 
-```javascript```
-
+javascript
 module.exports = {
     SERVER: {
         IP: 'YOUR_SERVER_IP',          // Replace with your server's IP address
