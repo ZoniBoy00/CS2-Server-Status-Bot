@@ -24,6 +24,7 @@ First, clone the repository to your local machine:
 
 ```bash```
 git clone https://github.com/ZoniBoy00/CS2-Server-Status-Bot.git
+
 cd CS2-Server-Status-Bot
 
 ### 2. Install Dependencies
@@ -38,6 +39,7 @@ This command installs all the necessary packages listed in the package.json file
 Create a configuration file named config.js in the project root directory with the following content:
 
 ```javascript```
+
 module.exports = {
     SERVER: {
         IP: 'YOUR_SERVER_IP',          // Replace with your server's IP address
@@ -73,6 +75,7 @@ To start the bot, execute the following command in your terminal:
 
 ```bash```
 node index.js
+
 The bot will immediately perform a status check and then continue to check the server status at the interval specified in the configuration (CHECK_INTERVAL).
 
 ### How It Works
