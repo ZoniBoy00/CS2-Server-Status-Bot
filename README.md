@@ -32,7 +32,7 @@ Install the required Node.js dependencies by running:
 This command installs all the necessary packages listed in the package.json file.
 
 ### 3. Configure the Bot
-Create a configuration file named config.js in the project root directory
+Open the index.js file in a text editor and locate the configuration section. Update the values with your server details, Steam API key, and Discord webhook URL.
 
 ### 4. Run the Bot
 To start the bot, execute the following command in your terminal:
