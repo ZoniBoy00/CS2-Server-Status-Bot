@@ -31,6 +31,7 @@ Install the required Node.js dependencies by running:
 
 ```bash```
 npm install
+
 This command installs all the necessary packages listed in the package.json file.
 
 ### 3. Configure the Bot
