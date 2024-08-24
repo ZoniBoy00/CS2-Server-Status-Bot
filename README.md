@@ -60,5 +60,5 @@ Contributing
 Feel free to submit issues or pull requests if you have suggestions or improvements.
 
 License
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the LICENSE(https://github.com/ZoniBoy00/CS2-Server-Status-Bot/blob/main/LICENSE) file for details.
 
