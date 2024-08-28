@@ -1,0 +1,15 @@
+{
+    "status": {
+        "online": "🟢 Online",
+        "offline": "🔴 Offline",
+        "players": "Players",
+        "map": "Map",
+        "name": "Name",
+        "no_info": "Detailed info unavailable"
+    },
+    "embed": {
+        "title": "CS2 Servers Status",
+        "description": "Total players across all servers:",
+        "footer": "CS2 Server Status Bot"
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "status": {
+        "online": "🟢 Online",
+        "offline": "🔴 Offline",
+        "players": "Pelaajia",
+        "map": "Kartta",
+        "name": "Nimi",
+        "no_info": "Yksityiskohtaiset tiedot eivät ole saatavilla"
+    },
+    "embed": {
+        "title": "CS2 Palvelinten Tila",
+        "description": "Pelaajia yhteensä kaikilla palvelimilla:",
+        "footer": "CS2 Palvelinten Tila Bot"
+    }
+}
