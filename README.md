@@ -62,3 +62,6 @@ Feel free to submit issues or pull requests if you have suggestions or improveme
 License
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/ZoniBoy00/CS2-Server-Status-Bot/blob/main/LICENSE) file for details.
 
+## Buy Me A Coffee ☕
+[Donate](https://buymeacoffee.com/zoniboy00)
+
