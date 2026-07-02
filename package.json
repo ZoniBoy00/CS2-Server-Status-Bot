@@ -1,14 +1,26 @@
 {
-  "name": "status",
-  "version": "1.0.0",
-  "description": "",
+  "name": "cs2-server-status-bot",
+  "version": "1.1.0",
+  "description": "Discord webhook bot that monitors Counter-Strike 2 server status via Steam Web API and direct TCP checks",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "test": "node -e \"require('./utils/validateEnv').validateEnv(); console.log('OK')\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "cs2",
+    "counter-strike",
+    "discord",
+    "webhook",
+    "server-status",
+    "steam"
+  ],
+  "author": "ZoniBoy00",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZoniBoy00/CS2-Server-Status-Bot.git"
+  },
   "dependencies": {
     "axios": "^1.7.5",
     "discord.js": "^14.15.3",

@@ -1,67 +1,102 @@
 # CS2 Server Status Bot
 
-A simple bot to monitor and update the status of a Counter-Strike 2 server on Discord using Webhooks. The bot periodically checks the server status and sends updates to a specified Discord channel.
+A lightweight Discord webhook bot that monitors Counter-Strike 2 servers and posts real-time status updates to a Discord channel. Uses the **Steam Web API** for detailed server info (players, map, name) with a **direct TCP fallback** for basic online/offline detection.
 
 ## Features
 
-- Checks server status at regular intervals.
-- Sends updates to a Discord channel using Webhooks.
-- Displays server details such as player count and current map.
-- Automatically updates or creates a message in the Discord channel.
+- ✅ Monitors multiple CS2 servers simultaneously
+- ✅ Steam Web API for detailed status (player count, map, server name)
+- ✅ Direct TCP connection fallback if Steam API is unreachable
+- ✅ Auto-retries with exponential backoff on Steam API failures
+- ✅ Updates a single Discord message (edits, doesn't spam)
+- ✅ Multi-language support (🇬🇧 English / 🇫🇮 Finnish)
+- ✅ Graceful shutdown
 
 ## Requirements
 
-- Node.js (version 14 or higher recommended)
-- npm (Node Package Manager)
-- Discord Webhook URL
-- Steam API Key
+- **Node.js** v18 or later
+- **npm** or **yarn**
+- **Steam Web API Key** — free: https://steamcommunity.com/dev/apikey
+- **Discord Webhook URL** — create in your Discord channel: Channel Settings → Integrations → Webhooks
 
-## Installation
+## Quick Start
 
-### 1. Clone the Repository
-
-First, clone the repository to your local machine:
-
-```git clone https://github.com/ZoniBoy00/CS2-Server-Status-Bot.git```
+```bash
+# Clone
+git clone https://github.com/ZoniBoy00/CS2-Server-Status-Bot.git
 cd CS2-Server-Status-Bot
 
-### 2. Install Dependencies
-Install the required Node.js dependencies by running:
+# Install dependencies
+npm install
 
-```npm install```
-This command installs all the necessary packages listed in the package.json file.
+# Configure
+cp example.env .env
+nano .env                        # Edit with your servers and API keys
 
-### 3. Configure the Bot
-Open the .env file in a text editor and locate the configuration section. Update the values with your server details, Steam API key, and Discord webhook URL.
+# Run
+npm start
+```
 
-### 4. Run the Bot
-To start the bot, execute the following command in your terminal:
+## Configuration
 
-```node index.js```
-The bot will immediately perform a status check and then continue to check the server status at the interval specified in the configuration (CHECK_INTERVAL).
+Edit `.env` with your server details:
 
-### How It Works
-Status Check: The bot periodically checks the status of the Counter-Strike 2 server using the Steam Web API.
-Embed Message: An embed message is created to display the server status, including whether the server is online or offline, and additional details if online.
-Discord Webhook: The bot sends or updates the status message in the specified Discord channel using a webhook.
-Configuration Options
-SERVER.IP: The IP address of the Counter-Strike 2 server.
-SERVER.PORT: The port number of the server.
-SERVER.NAME: The name of the server (for display purposes).
-STEAM.API_KEY: Your Steam API key for querying server status.
-STEAM.SERVER_ADDRESS: The combined address of your server in IP:PORT format.
-DISCORD.WEBHOOK_URL: The Discord webhook URL where status updates will be sent.
-DISCORD.CHECK_INTERVAL: The interval (in milliseconds) at which the bot checks the server status.
-Troubleshooting
-Error Saving Message ID: Ensure that the bot has permission to write to the file system.
-API Request Failed: Check your API key and server address for correctness.
-Discord Webhook Issues: Verify the webhook URL and permissions.
-Contributing
-Feel free to submit issues or pull requests if you have suggestions or improvements.
+| Variable | Required | Description |
+|----------|:--------:|-------------|
+| `SERVERS` | ✅ | JSON array of server objects (IP, PORT, NAME, STEAM_ADDRESS) |
+| `STEAM_API_KEY` | ✅ | Your Steam Web API key |
+| `DISCORD_WEBHOOK_URL` | ✅ | Discord channel webhook URL |
+| `CHECK_INTERVAL` | ❌ | Check interval in ms (default: `60000`, min: `10000`) |
+| `DEFAULT_LANG` | ❌ | Language: `en` (default) or `fi` |
+| `MESSAGE_ID_PATH` | ❌ | Custom path for message ID file (default: `last_message_id.txt`) |
 
-License
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/ZoniBoy00/CS2-Server-Status-Bot/blob/main/LICENSE) file for details.
+### SERVERS format
 
-## Buy Me A Coffee ☕
-[Donate](https://buymeacoffee.com/zoniboy00)
+```json
+SERVERS='[
+  {
+    "IP": "1.2.3.4",
+    "PORT": 27015,
+    "NAME": "My CS2 Server",
+    "STEAM_ADDRESS": "1.2.3.4:27015"
+  }
+]'
+```
 
+## Running as a Service (systemd)
+
+```
+[Unit]
+Description=CS2 Server Status Bot
+After=network.target
+
+[Service]
+Type=simple
+User=youruser
+WorkingDirectory=/path/to/CS2-Server-Status-Bot
+ExecStart=/usr/bin/node index.js
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Save as `/etc/systemd/system/cs2-status-bot.service`, then:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now cs2-status-bot
+```
+
+## How It Works
+
+1. On startup and every `CHECK_INTERVAL` ms (+ random jitter), the bot queries the **Steam Web API** for each server's current status
+2. If the Steam API fails, a **direct TCP connection** to the server port determines if it's online
+3. A Discord **embed message** is created showing all servers with player counts, maps, and online/offline status
+4. The bot **edits the same message** rather than sending new ones — no channel spam
+5. The message ID is persisted to a file so the bot survives restarts
+
+## License
+
+MIT — see [LICENSE](LICENSE).

@@ -1,18 +1,21 @@
 const fs = require('fs');
 const path = require('path');
 
-// Load language based on environment variable
+// Load language once at startup
 const LANG = process.env.DEFAULT_LANG || 'en';
 const languageFilePath = path.resolve(__dirname, `../locales/${LANG}.json`);
 
+let _language = null;
+
 const loadLanguage = () => {
+    if (_language) return _language;
     try {
-        const languageData = fs.readFileSync(languageFilePath);
-        return JSON.parse(languageData);
+        _language = JSON.parse(fs.readFileSync(languageFilePath, 'utf-8'));
     } catch (error) {
-        console.error(`Error loading language file: ${error.message}`);
-        return {}; // Return an empty object if there's an error
+        console.error(`Error loading language file (${LANG}): ${error.message}`);
+        _language = {};
     }
+    return _language;
 };
 
 const translate = (key) => {
@@ -25,9 +28,7 @@ const translate = (key) => {
         if (result === undefined) break;
     }
 
-    return result || key; // Return the key if no translation found
+    return result || key;
 };
 
-module.exports = {
-    translate
-};
+module.exports = { translate };
