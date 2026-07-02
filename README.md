@@ -100,3 +100,9 @@ sudo systemctl enable --now cs2-status-bot
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Support
+
+If you find this bot useful, consider supporting the original project:
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate?hosted_button_id=YOUR_BUTTON_ID)
