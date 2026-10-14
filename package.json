@@ -22,7 +22,7 @@
     "url": "https://github.com/ZoniBoy00/CS2-Server-Status-Bot.git"
   },
   "dependencies": {
-    "axios": "^1.7.5",
+    "axios": "^1.20.0",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
     "undici": "6.28.1",
